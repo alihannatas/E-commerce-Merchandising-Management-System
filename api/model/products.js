@@ -19,6 +19,9 @@ const Products = db.define("Product", {
   },
   stockQuantity: {
     type: Sequelize.INTEGER,
+    validate: {
+      min: 0,
+    },
   },
   categoryId: {
     type: Sequelize.INTEGER,

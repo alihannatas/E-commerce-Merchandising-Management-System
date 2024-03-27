@@ -1,6 +1,6 @@
 const Product = require("../model/products");
 const Category = require("../model/category");
-const { where } = require("sequelize");
+const { where, Op } = require("sequelize");
 
 exports.addProduct = async (req, res, next) => {
   const { title, description, stockQuantity, categoryId } = req.body;
@@ -17,11 +17,18 @@ exports.addProduct = async (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+exports.getProducts = async (req, res, next) => {
+  const products = await Product.findAll()
+    .then((products) => {
+      res.status(200).json(products);
+    })
+    .catch((err) => console.log(err));
+};
+
 exports.getProduct = async (req, res, next) => {
   const id = req.params.id;
   const product = await Product.findByPk(id)
     .then((product) => {
-      console.log(product);
       res.status(200).json(product);
     })
     .catch((err) => console.log(err));
@@ -71,6 +78,14 @@ exports.addCategory = async (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+exports.getCategory = async (req, res, next) => {
+  const category = await Category.findAll()
+    .then((category) => {
+      res.status(200).json(category);
+    })
+    .catch((err) => console.log(err));
+};
+
 exports.deleteCategory = async (req, res, next) => {
   const id = req.params.id;
   const category = await Category.destroy({
@@ -83,4 +98,40 @@ exports.deleteCategory = async (req, res, next) => {
       res.status(204).json({ message: "Product succesfully deleted." });
     })
     .catch((err) => console.log(err));
+};
+
+exports.getProductWithCategory = async (req, res, next) => {
+  const categoryId = req.params.id;
+  const products = await Product.findAll({ where: { categoryId: categoryId } })
+    .then((products) => {
+      console.log(products);
+      res.status(200).json(products);
+    })
+    .catch((err) => console.log(err));
+};
+
+exports.getFilteredProducts = async (req, res, next) => {
+  let { keyword, minStockQuantity, maxStockQuantity } = req.query;
+  if (!keyword) keyword = "";
+  if (!minStockQuantity) minStockQuantity = Number.MIN_VALUE;
+  if (!maxStockQuantity) maxStockQuantity = Number.MAX_VALUE;
+
+  const filteredProducts = await Product.findAll({
+    where: {
+      [Op.or]: {
+        title: { [Op.iLike]: keyword },
+        description: { [Op.iLike]: keyword },
+        stockQuantity: { [Op.between]: [minStockQuantity, maxStockQuantity] },
+      },
+    },
+  })
+    .then((filteredProducts) => {
+      res.status(200).json(filteredProducts);
+    })
+    .catch((err) => {
+      console.log(err);
+      res
+        .status(500)
+        .json({ error: "An error occurred while fetching filtered products." });
+    });
 };

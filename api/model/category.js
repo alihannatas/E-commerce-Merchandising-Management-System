@@ -12,12 +12,6 @@ const Category = db.define("Category", {
     type: Sequelize.STRING(255),
     allowNull: false,
   },
-  minStockLevel: {
-    type: Sequelize.INTEGER,
-    validate: {
-      min: 0,
-    },
-  },
 });
 
 module.exports = Category;

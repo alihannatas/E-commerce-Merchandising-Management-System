@@ -12,7 +12,7 @@ exports.addProduct = async (req, res, next) => {
   })
     .then((product) => {
       console.log(product);
-      res.json(product);
+      res.status(201).json(product);
     })
     .catch((err) => console.log(err));
 };
@@ -22,7 +22,7 @@ exports.getProduct = async (req, res, next) => {
   const product = await Product.findByPk(id)
     .then((product) => {
       console.log(product);
-      res.json(product);
+      res.status(200).json(product);
     })
     .catch((err) => console.log(err));
 };
@@ -40,7 +40,7 @@ exports.updateProduct = async (req, res, next) => {
     })
     .then((result) => {
       console.log(result);
-      res.json({ message: "Product succesfully updated." });
+      res.status(200).json({ message: "Product succesfully updated." });
     })
     .catch((err) => console.log(err));
 };
@@ -54,7 +54,33 @@ exports.deleteProduct = async (req, res, next) => {
   })
     .then((result) => {
       console.log(result);
-      res.json({ message: "Product succesfully deleted." });
+      res.status(204).json({ message: "Product succesfully deleted." });
+    })
+    .catch((err) => console.log(err));
+};
+
+exports.addCategory = async (req, res, next) => {
+  const { name } = req.body;
+  const category = await Category.create({
+    name,
+  })
+    .then((category) => {
+      console.log(category);
+      res.status(201).json(category);
+    })
+    .catch((err) => console.log(err));
+};
+
+exports.deleteCategory = async (req, res, next) => {
+  const id = req.params.id;
+  const category = await Category.destroy({
+    where: {
+      id: id,
+    },
+  })
+    .then((result) => {
+      console.log(result);
+      res.status(204).json({ message: "Product succesfully deleted." });
     })
     .catch((err) => console.log(err));
 };

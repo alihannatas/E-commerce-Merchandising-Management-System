@@ -112,6 +112,9 @@ exports.getProductWithCategory = async (req, res, next) => {
 
 exports.getFilteredProducts = async (req, res, next) => {
   let { keyword, minStockQuantity, maxStockQuantity } = req.query;
+  const products = await Product.findAll();
+  if (!keyword && !minStockQuantity && !maxStockQuantity)
+    return res.status(200).json(products);
   if (!keyword) keyword = "";
   if (!minStockQuantity) minStockQuantity = Number.MIN_VALUE;
   if (!maxStockQuantity) maxStockQuantity = Number.MAX_VALUE;
@@ -119,10 +122,10 @@ exports.getFilteredProducts = async (req, res, next) => {
   const filteredProducts = await Product.findAll({
     where: {
       [Op.or]: {
-        title: { [Op.iLike]: keyword },
-        description: { [Op.iLike]: keyword },
-        stockQuantity: { [Op.between]: [minStockQuantity, maxStockQuantity] },
+        title: { [Op.substring]: keyword },
+        description: { [Op.substring]: keyword },
       },
+      stockQuantity: { [Op.between]: [minStockQuantity, maxStockQuantity] },
     },
   })
     .then((filteredProducts) => {
